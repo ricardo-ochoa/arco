@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Trash2, Package } from "lucide-react"
+import { ArrowLeft, Trash2, Package, Loader2 } from "lucide-react"
 import { getPedido, deletePedido } from "@/lib/storage"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -23,21 +23,30 @@ export default function PedidoDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const [pedido, setPedido] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    const p = getPedido(id)
-    if (p) {
-      setPedido(p)
-    } else {
-      setNotFound(true)
-    }
+    getPedido(id)
+      .then((p) => {
+        if (p) setPedido(p)
+        else setNotFound(true)
+      })
+      .finally(() => setLoading(false))
   }, [id])
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!confirm(`¿Eliminar el pedido ${pedido.orderId}?`)) return
-    deletePedido(pedido.uuid)
+    await deletePedido(pedido.uuid)
     router.push("/")
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    )
   }
 
   if (notFound) {
@@ -51,8 +60,6 @@ export default function PedidoDetailPage() {
       </div>
     )
   }
-
-  if (!pedido) return null
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -77,7 +84,6 @@ export default function PedidoDetailPage() {
         </Button>
       </div>
 
-      {/* Info general */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Información del Pedido</CardTitle>
@@ -86,7 +92,7 @@ export default function PedidoDetailPage() {
           <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
             <div>
               <dt className="text-muted-foreground">UUID</dt>
-              <dd className="font-mono text-xs mt-0.5 text-foreground">{pedido.uuid}</dd>
+              <dd className="font-mono text-xs mt-0.5 text-foreground break-all">{pedido.uuid}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">ID Pedido</dt>
@@ -112,7 +118,6 @@ export default function PedidoDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Productos */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
@@ -152,7 +157,6 @@ export default function PedidoDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Totales */}
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-2 max-w-xs ml-auto">

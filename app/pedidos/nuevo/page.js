@@ -45,7 +45,7 @@ export default function NuevoPedidoPage() {
     setProductos(updated)
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!orderId.trim()) { setError("El ID de pedido es obligatorio."); return }
     const fechaISO = parseFechaInput(fecha)
     if (!fechaISO) { setError('Fecha inválida. Usa el formato "06/06/26 10:07 p.m."'); return }
@@ -73,8 +73,12 @@ export default function NuevoPedidoPage() {
       createdAt: new Date().toISOString(),
     }
 
-    savePedido(pedido)
-    router.push("/")
+    try {
+      await savePedido(pedido)
+      router.push("/")
+    } catch {
+      setError("Error al guardar el pedido. Intenta de nuevo.")
+    }
   }
 
   return (

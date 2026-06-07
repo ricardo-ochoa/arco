@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Plus, Package, Trash2, Eye } from "lucide-react"
+import { Plus, Package, Trash2, Eye, Loader2 } from "lucide-react"
 import { getPedidos, deletePedido } from "@/lib/storage"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -18,15 +18,18 @@ import {
 
 export default function HomePage() {
   const [pedidos, setPedidos] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setPedidos(getPedidos())
+    getPedidos()
+      .then(setPedidos)
+      .finally(() => setLoading(false))
   }, [])
 
-  function handleDelete(uuid, orderId) {
+  async function handleDelete(uuid, orderId) {
     if (!confirm(`¿Eliminar el pedido ${orderId}?`)) return
-    deletePedido(uuid)
-    setPedidos(getPedidos())
+    await deletePedido(uuid)
+    setPedidos((prev) => prev.filter((p) => p.uuid !== uuid))
   }
 
   return (
@@ -35,7 +38,7 @@ export default function HomePage() {
         <div>
           <h2 className="text-2xl font-bold text-foreground">Pedidos</h2>
           <p className="text-muted-foreground text-sm mt-1">
-            {pedidos.length} {pedidos.length === 1 ? "registro" : "registros"} guardados
+            {loading ? "Cargando…" : `${pedidos.length} ${pedidos.length === 1 ? "registro" : "registros"} guardados`}
           </p>
         </div>
         <Link href="/pedidos/nuevo">
@@ -46,7 +49,11 @@ export default function HomePage() {
         </Link>
       </div>
 
-      {pedidos.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : pedidos.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-border rounded-xl">
           <Package className="h-10 w-10 text-muted-foreground mb-4" />
           <p className="text-muted-foreground font-medium">Sin pedidos todavía</p>
