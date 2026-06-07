@@ -12,11 +12,8 @@ export function Header() {
 
   return (
     <header className="border-b border-border bg-card">
-      <div className="mx-auto max-w-5xl px-4 py-4 flex items-center gap-3">
-        <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground text-xs font-bold">A</span>
-        </div>
-        <h1 className="text-lg font-semibold text-foreground">Arco</h1>
+      <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-3">
+        <img src="/logo.svg" alt="Arco" className="h-7 w-auto" />
         <span className="text-muted-foreground text-sm flex-1">Registro de Pedidos</span>
         <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground">
           <LogOut className="h-4 w-4" />
