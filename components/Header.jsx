@@ -1,15 +1,13 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function Header() {
-  const router = useRouter()
 
   function handleLogout() {
     document.cookie = "arco_auth=; path=/; max-age=0"
-    router.push("/login")
+    window.location.href = "/login"
   }
 
   return (

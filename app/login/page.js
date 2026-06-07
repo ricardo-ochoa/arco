@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,9 +12,6 @@ const CREDENTIALS = {
 }
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -24,9 +20,13 @@ export default function LoginPage() {
     setError("")
     setLoading(true)
 
+    const data = new FormData(e.target)
+    const email = data.get("email")
+    const password = data.get("password")
+
     if (email === CREDENTIALS.email && password === CREDENTIALS.password) {
       document.cookie = `arco_auth=${email}; path=/; max-age=${60 * 60 * 24}`
-      router.push("/")
+      window.location.href = "/"
     } else {
       setError("Correo o contraseña incorrectos.")
       setLoading(false)
@@ -54,10 +54,9 @@ export default function LoginPage() {
                 <Label htmlFor="email">Correo electrónico</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="hola@arco.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   required
                   autoFocus
                 />
@@ -66,10 +65,9 @@ export default function LoginPage() {
                 <Label htmlFor="password">Contraseña</Label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   placeholder="••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
