@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, Trash2, ArrowLeft, Save } from "lucide-react"
 import { savePedido } from "@/lib/storage"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, parseFechaInput } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -47,7 +47,8 @@ export default function NuevoPedidoPage() {
 
   function handleSave() {
     if (!orderId.trim()) { setError("El ID de pedido es obligatorio."); return }
-    if (!fecha) { setError("La fecha es obligatoria."); return }
+    const fechaISO = parseFechaInput(fecha)
+    if (!fechaISO) { setError('Fecha inválida. Usa el formato "06/06/26 10:07 p.m."'); return }
     if (!cliente.trim()) { setError("El cliente es obligatorio."); return }
     const productosValidos = productos.filter((p) => p.sku || p.nombre)
     if (productosValidos.length === 0) { setError("Agrega al menos un producto."); return }
@@ -57,7 +58,7 @@ export default function NuevoPedidoPage() {
     const pedido = {
       uuid: crypto.randomUUID(),
       orderId: orderId.trim(),
-      fecha,
+      fecha: fechaISO,
       cliente: cliente.trim().toUpperCase(),
       direccion: direccion.trim(),
       productos: productosValidos.map((p) => ({
@@ -109,7 +110,8 @@ export default function NuevoPedidoPage() {
             <Label htmlFor="fecha">Fecha y Hora</Label>
             <Input
               id="fecha"
-              type="datetime-local"
+              type="text"
+              placeholder="06/06/26 10:07 p.m."
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
             />
